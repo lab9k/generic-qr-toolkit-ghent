@@ -14,7 +14,7 @@ class QRCode(models.Model):
     )
     form_url = models.URLField(blank=True, default='', help_text='links to a form')
     redirect_url = models.URLField(blank=True, default='', help_text='redirect to external page')
-    basic_info = models.CharField(max_length=1000, help_text='short information about device')
+    basic_info = models.CharField(blank=True, max_length=1000, help_text='short information about device')
 
 
 @admin.register(QRCode)

@@ -7,4 +7,4 @@ urlpatterns = [
     path('qrcodes/<pk>/', views.QRCodeDetails.as_view()),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(urlpatterns, allowed=['json', 'html'])
