@@ -18,7 +18,7 @@ from rest_framework import routers
 
 from django.contrib import admin
 
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
 
 # Wire up our API using automatic URL routing.
 urlpatterns = [

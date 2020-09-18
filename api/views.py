@@ -56,6 +56,9 @@ class QRCodeDetails(APIView):
 
     def get(self, request, pk, format=None):
         qrcode = self.get_object(pk)
+        if request.accepted_renderer.format == 'json' or format == 'json':
+            serializer = QRCodeSerializer(qrcode)
+            return Response(serializer.data)
         """ When both form url and basic info aren't just redirect to redirect url """
         if qrcode.form_url == '' and qrcode.basic_info == '':
             return redirect(qrcode.redirect_url)
