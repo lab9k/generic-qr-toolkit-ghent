@@ -39,6 +39,8 @@ class QRCodeBulkCreate(APIView):
             if serializer.is_valid():
                 serializer.save()
                 uuids.append(serializer.data['id'])
+            else:
+                Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(uuids)
 
 
