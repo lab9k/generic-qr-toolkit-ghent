@@ -5,4 +5,5 @@ from api.models import QRCode
 class QRCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = QRCode
-        fields = ['id', 'title', 'form_url', 'redirect_url', 'basic_info', ]
+        fields = ['id', 'title', 'form_url',
+                  'redirect_url', 'basic_info', 'uuid']
