@@ -1,5 +1,6 @@
 asgiref==3.2.10
 autopep8==1.5.4
+dj-database-url==0.5.0
 Django==3.1.1
 django-reversion==3.0.8
 djangorestframework==3.11.1
@@ -12,3 +13,4 @@ six==1.15.0
 sqlparse==0.3.1
 toml==0.10.1
 webencodings==0.5.1
+whitenoise==5.2.0
