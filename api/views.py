@@ -1,6 +1,7 @@
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from api.models import QRCode
 from api.serializers import QRCodeSerializer
 from django.http import Http404
@@ -35,12 +36,14 @@ class QRCodeBulkCreate(APIView):
             if request is not {}:
                 serializer = QRCodeSerializer(qrcode, data=request.data)
             else:
-                serializer = QRCodeSerializer(qrcode, data={"title": "generated with batch number: " + str(i)})
+                serializer = QRCodeSerializer(
+                    qrcode, data={"title": f"generated with batch number: {str(i)}"})
             if serializer.is_valid():
                 serializer.save()
                 uuids.append(serializer.data['id'])
             else:
-                Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                Response(serializer.errors,
+                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(uuids)
 
 
@@ -48,34 +51,34 @@ class QRCodeDetails(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
 
     @staticmethod
-    def get_object(pk):
+    def get_object(uuid):
         try:
-            return QRCode.objects.get(pk=pk)
+            return QRCode.objects.get(uuid=uuid)
         except QRCode.DoesNotExist or ValidationError:
             raise Http404
 
-    def get(self, request, pk, format=None):
-        qrcode = self.get_object(pk)
+    def get(self, request, uuid, format=None):
+        qrcode = self.get_object(uuid)
         if request.accepted_renderer.format == 'json' or format == 'json':
             serializer = QRCodeSerializer(qrcode)
             return Response(serializer.data)
         """ When both form url and basic info aren't just redirect to redirect url """
-        if qrcode.form_url == '' and qrcode.basic_info == '':
+        if qrcode.form_url == '' and qrcode.basic_info == '' and qrcode.redirect_url != '':
             return redirect(qrcode.redirect_url)
 
         if request.accepted_renderer.format == 'html' or format == 'html':
             return Response({'qrcode': qrcode}, template_name='index.html')
-        else:
-            serializer = QRCodeSerializer(qrcode)
-            return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        if QRCode.objects.filter(pk=pk).exists():
-            qrcode = self.get_object(pk)
+        serializer = QRCodeSerializer(qrcode)
+        return Response(serializer.data)
+
+    def put(self, request, uuid, format=None):
+        if QRCode.objects.filter(uuid=uuid).exists():
+            qrcode = self.get_object(uuid)
         else:
             qrcode = QRCode(request.data)
         serializer = QRCodeSerializer(qrcode, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'qrcode': serializer.data}, template_name='index.html')
-        raise Http404
+        raise HTTP_400_BAD_REQUEST
