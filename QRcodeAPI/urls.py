@@ -18,12 +18,9 @@ from rest_framework import routers
 
 from django.contrib import admin
 
-router = routers.DefaultRouter(trailing_slash=False)
-
 # Wire up our API using automatic URL routing.
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('', include('api.urls')),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
