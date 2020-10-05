@@ -1,10 +1,9 @@
 asgiref==3.2.10
 autopep8==1.5.4
 Django==3.1.1
-django-markdown==0.8.4
-django-markdownify==0.8.1
 django-reversion==3.0.8
 djangorestframework==3.11.1
+gunicorn==20.0.4
 packaging==20.4
 pycodestyle==2.6.0
 pyparsing==2.4.7
