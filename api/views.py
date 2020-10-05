@@ -8,6 +8,21 @@ from django.http import Http404
 from rest_framework.views import APIView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
+from django.views.generic import DetailView
+
+
+class CodeView(DetailView):
+    template_name = 'code.html'
+    pk_url_kwarg = 'uuid'
+    queryset = QRCode.objects.all()
+    context_object_name = 'code'
+
+    def get_object(self, queryset=None):
+        uuid = self.kwargs.get(self.pk_url_kwarg)
+        try:
+            return self.queryset.get(uuid=uuid)
+        except QRCode.DoesNotExist or ValidationError:
+            raise Http404
 
 
 class QRCodeList(APIView):
