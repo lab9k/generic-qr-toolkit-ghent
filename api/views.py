@@ -1,3 +1,4 @@
+from django.views.generic.list import ListView
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,7 +9,13 @@ from django.http import Http404
 from rest_framework.views import APIView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
+
+
+class CodeList(ListView):
+    template_name = 'code_list.html'
+    queryset = QRCode.objects.all()
+    context_object_name = 'codes'
 
 
 class CodeView(DetailView):
