@@ -99,3 +99,14 @@ class HasBasicInfoFilter(admin.SimpleListFilter):
             return queryset.filter(basic_info__exact='')
         else:
             return queryset.all()
+
+
+class DepartmentFilter(admin.SimpleListFilter):
+    title = _('on department')
+    parameter_name = 'department'
+
+    def lookups(self, request, model_admin):
+        pass
+
+    def queryset(self, request, queryset):
+        pass
