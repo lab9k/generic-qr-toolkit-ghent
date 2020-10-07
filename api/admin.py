@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
 from api.models import Department, QRCode
@@ -7,9 +8,15 @@ from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
 
 @admin.register(QRCode)
 class QRCodeAdmin(VersionAdmin):
-    list_display = ('title', 'department', 'uuid')
+    list_display = ('title', 'department', 'get_code_url')
     list_filter = (HasRedirectFilter, HasFormFilter,
                    HasBasicInfoFilter, ('department', admin.RelatedOnlyFieldListFilter))
+    search_fields = ('title', 'department__name')
+
+    def get_code_url(self, obj):
+        return mark_safe(f'<span><a href="/code/{obj.uuid}">/code/{obj.uuid}</a></span>')
+
+    get_code_url.short_description = 'Code url'
 
 
 @admin.register(Department)
