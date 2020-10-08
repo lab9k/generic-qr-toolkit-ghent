@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
-from api.models import ApiHit, Department, QRCode
+from api.models import ApiHit, Department, LinkUrl, QRCode
 from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
 
 
@@ -12,12 +12,18 @@ class ApiHitAdmin(admin.ModelAdmin):
     list_display = ('code', 'hit_date', 'action')
 
 
+class LinkUrlInline(admin.StackedInline):
+    model = LinkUrl
+    extra = 1
+
+
 @admin.register(QRCode)
 class QRCodeAdmin(VersionAdmin):
     list_display = ('title', 'department', 'get_code_url')
     list_filter = (HasRedirectFilter, HasFormFilter,
                    HasBasicInfoFilter, ('department', admin.RelatedOnlyFieldListFilter))
     search_fields = ('title', 'department__name')
+    inlines = [LinkUrlInline]
 
     def get_code_url(self, obj):
         return mark_safe(f'<span><a href="/code/{obj.uuid}">/code/{obj.uuid}</a></span>')

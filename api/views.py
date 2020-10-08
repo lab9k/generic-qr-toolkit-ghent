@@ -88,17 +88,25 @@ class QRCodeDetails(APIView):
             hit.save()
             serializer = QRCodeSerializer(qrcode)
             return Response(serializer.data)
-        """ When both form url and basic info aren't just redirect to redirect url """
-        if qrcode.form_url == '' and qrcode.basic_info == '' and qrcode.redirect_url != '':
-            hit = ApiHit(
-                code=qrcode, action='redirect')
-            hit.save()
-            return redirect(qrcode.redirect_url)
 
         if request.accepted_renderer.format == 'html' or format == 'html':
-            hit = ApiHit(
-                code=qrcode, action='basic_info')
-            hit.save()
+            if qrcode.urls.count() == 0:
+                return Response({'qrcode': qrcode}, template_name='index.html')
+
+            if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.REDIRECT:
+                hit = ApiHit(
+                    code=qrcode, action=ApiHit.ACTION_CHOICES.REDIRECT)
+                hit.save()
+                return redirect(qrcode.urls.first().url, permanent=False)
+            if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.KIOSK:
+                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
+                hit.save()
+                return Response({'qrcode': qrcode}, template_name='kiosk.html')
+            if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.INFO_PAGE:
+                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
+                hit.save()
+                return Response({'qrcode': qrcode}, template_name='index.html')
+
             return Response({'qrcode': qrcode}, template_name='index.html')
 
         hit = ApiHit(

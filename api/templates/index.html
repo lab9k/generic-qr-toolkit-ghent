@@ -10,11 +10,11 @@
     <div class="card-body">
       <div class="card-text">
         <p>{{ qrcode.basic_info }}</p>
-        {% if qrcode.redirect_url %}
-        <a href="{{ qrcode.redirect_url }}">redirect link</a><br />
-        {% endif %} {% if qrcode.form_url %}
-        <a href="{{ qrcode.form_url }}">form link</a>
-        {% endif %}
+        <ul>
+          {% for url in qrcode.urls.all %}
+          <li><a href="{{url.url}}">{{url.name}}</a></li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
   </div>

@@ -5,13 +5,13 @@ import uuid
 
 class ApiHit(models.Model):
     class ACTION_CHOICES(models.TextChoices):
-        BASIC_INFO = 'basic_info', _('Basic info')
+        HTML = 'html', _('Html')
         JSON = 'json', _('Json Response')
         REDIRECT = 'redirect', _('Redirect')
 
     hit_date = models.DateTimeField(auto_now_add=True)
     action = models.CharField(
-        max_length=16, choices=ACTION_CHOICES.choices, default=ACTION_CHOICES.BASIC_INFO)
+        max_length=16, choices=ACTION_CHOICES.choices, default=ACTION_CHOICES.HTML)
     code = models.ForeignKey(
         'QRCode', on_delete=models.CASCADE, related_name='hits')
 
@@ -23,7 +23,36 @@ class Department(models.Model):
         return f'{self.name}'
 
 
+class LinkUrl(models.Model):
+    name = models.CharField(max_length=64, blank=True,
+                            default='', help_text='Name of the url. Used in buttons and links when a code is scanned.')
+    url = models.URLField(blank=True,
+                          default='',
+                          help_text='redirect to external page')
+    priority = models.FloatField(default=1)
+    code = models.ForeignKey(
+        to='QRCode',
+        on_delete=models.CASCADE,
+        related_name='urls')
+
+    class Meta:
+        ordering = ['-priority']
+
+
+QR_MODE_HELP_TEXT = """
+Sets the mode this code is in.<br/>
+Kiosk Mode: Show buttons to choose a link from<br/>
+Redirect Mode: Instantly redirects to the url with the highest priority.<br/>
+Information Page Mode: Show basic info with links to different urls
+"""
+
+
 class QRCode(models.Model):
+    class REDIRECT_MODE_CHOICES(models.TextChoices):
+        KIOSK = 'kiosk', _('Kiosk Mode')
+        REDIRECT = 'redirect', _('Redirect Mode')
+        INFO_PAGE = 'info_page', _('Information Page Mode')
+
     title = models.CharField(blank=True, default='', max_length=100)
     department = models.ForeignKey(
         to=Department, on_delete=models.SET_NULL, null=True)
@@ -33,11 +62,10 @@ class QRCode(models.Model):
         editable=True
     )
 
-    form_url = models.URLField(
-        blank=True, default='', help_text='links to a form')
-    redirect_url = models.URLField(
-        blank=True, default='', help_text='redirect to external page')
     basic_info = models.TextField(blank=True, default='')
+
+    mode = models.CharField(
+        max_length=16, choices=REDIRECT_MODE_CHOICES.choices, default=REDIRECT_MODE_CHOICES.REDIRECT, help_text=QR_MODE_HELP_TEXT)
 
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
