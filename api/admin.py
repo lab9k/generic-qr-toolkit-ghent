@@ -19,15 +19,20 @@ class LinkUrlInline(admin.StackedInline):
 
 @admin.register(QRCode)
 class QRCodeAdmin(VersionAdmin):
-    list_display = ('title', 'department', 'get_code_url')
+    list_display = ('title', 'department',
+                    'get_code_url', 'get_code_image_url')
     list_filter = (HasRedirectFilter, HasFormFilter,
                    HasBasicInfoFilter, ('department', admin.RelatedOnlyFieldListFilter))
     search_fields = ('title', 'department__name')
     inlines = [LinkUrlInline]
 
-    def get_code_url(self, obj):
+    def get_code_image_url(self, obj):
         return mark_safe(f'<span><a href="/code/{obj.uuid}">/code/{obj.uuid}</a></span>')
 
+    def get_code_url(self, obj):
+        return mark_safe(f'<span><a href="/{obj.uuid}">/{obj.uuid}</a></span>')
+
+    get_code_image_url.short_description = 'Code image'
     get_code_url.short_description = 'Code url'
 
 
