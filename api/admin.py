@@ -2,8 +2,14 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
-from api.models import Department, QRCode
+from api.models import ApiHit, Department, QRCode
 from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
+
+
+@admin.register(ApiHit)
+class ApiHitAdmin(admin.ModelAdmin):
+    readonly_fields = ('hit_date', 'user_agent', 'action', 'code')
+    list_display = ('code', 'hit_date', 'action')
 
 
 @admin.register(QRCode)

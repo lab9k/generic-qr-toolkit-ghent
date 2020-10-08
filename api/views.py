@@ -3,7 +3,7 @@ from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from api.models import QRCode
+from api.models import ApiHit, QRCode
 from api.serializers import QRCodeSerializer
 from django.http import Http404
 from rest_framework.views import APIView
@@ -81,16 +81,29 @@ class QRCodeDetails(APIView):
 
     def get(self, request, uuid, format=None):
         qrcode = self.get_object(uuid)
+
         if request.accepted_renderer.format == 'json' or format == 'json':
+            hit = ApiHit(
+                user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='json')
+            hit.save()
             serializer = QRCodeSerializer(qrcode)
             return Response(serializer.data)
         """ When both form url and basic info aren't just redirect to redirect url """
         if qrcode.form_url == '' and qrcode.basic_info == '' and qrcode.redirect_url != '':
+            hit = ApiHit(
+                user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='redirect')
+            hit.save()
             return redirect(qrcode.redirect_url)
 
         if request.accepted_renderer.format == 'html' or format == 'html':
+            hit = ApiHit(
+                user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='basic_info')
+            hit.save()
             return Response({'qrcode': qrcode}, template_name='index.html')
 
+        hit = ApiHit(
+            user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='json')
+        hit.save()
         serializer = QRCodeSerializer(qrcode)
         return Response(serializer.data)
 
