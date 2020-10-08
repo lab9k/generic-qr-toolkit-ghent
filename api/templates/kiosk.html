@@ -4,7 +4,7 @@
     {% for url in qrcode.urls.all %}
     <div class="col-6 text-center mt-5">
       <a
-        class="btn btn-info btn-lg btn-block text-dark"
+        class="btn btn-info btn-lg btn-block text-dark btn-rnd"
         href="{{url.url}}"
         role="button"
         >{{url.name}}</a
@@ -14,4 +14,16 @@
   </div>
   <ul></ul>
 </div>
+<script>
+  (() => {
+    document.querySelectorAll('.btn-rnd').forEach((el) => {
+      const color = randomColor({
+        luminosity: 'light',
+        hue: 'blue',
+      });
+      el.style.backgroundColor = color;
+      el.style.borderColor = color;
+    });
+  })();
+</script>
 {% endblock content %}
