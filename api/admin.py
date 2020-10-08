@@ -8,7 +8,7 @@ from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
 
 @admin.register(ApiHit)
 class ApiHitAdmin(admin.ModelAdmin):
-    readonly_fields = ('hit_date', 'user_agent', 'action', 'code')
+    readonly_fields = ('hit_date', 'action', 'code')
     list_display = ('code', 'hit_date', 'action')
 
 

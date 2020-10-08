@@ -10,7 +10,6 @@ class ApiHit(models.Model):
         REDIRECT = 'redirect', _('Redirect')
 
     hit_date = models.DateTimeField(auto_now_add=True)
-    user_agent = models.CharField(max_length=256, default='')
     action = models.CharField(
         max_length=16, choices=ACTION_CHOICES.choices, default=ACTION_CHOICES.BASIC_INFO)
     code = models.ForeignKey(

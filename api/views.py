@@ -84,25 +84,25 @@ class QRCodeDetails(APIView):
 
         if request.accepted_renderer.format == 'json' or format == 'json':
             hit = ApiHit(
-                user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='json')
+                code=qrcode, action='json')
             hit.save()
             serializer = QRCodeSerializer(qrcode)
             return Response(serializer.data)
         """ When both form url and basic info aren't just redirect to redirect url """
         if qrcode.form_url == '' and qrcode.basic_info == '' and qrcode.redirect_url != '':
             hit = ApiHit(
-                user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='redirect')
+                code=qrcode, action='redirect')
             hit.save()
             return redirect(qrcode.redirect_url)
 
         if request.accepted_renderer.format == 'html' or format == 'html':
             hit = ApiHit(
-                user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='basic_info')
+                code=qrcode, action='basic_info')
             hit.save()
             return Response({'qrcode': qrcode}, template_name='index.html')
 
         hit = ApiHit(
-            user_agent=request.META['HTTP_USER_AGENT'], code=qrcode, action='json')
+            code=qrcode, action='json')
         hit.save()
         serializer = QRCodeSerializer(qrcode)
         return Response(serializer.data)
