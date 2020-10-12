@@ -32,43 +32,6 @@ class CodeView(DetailView):
             raise Http404
 
 
-class QRCodeList(APIView):
-    def get(self, request, format=None):
-        qrcodes = QRCode.objects.all()
-        serializer = QRCodeSerializer(qrcodes, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = QRCodeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class QRCodeBulkCreate(APIView):
-    renderer_classes = [JSONRenderer]
-
-    @staticmethod
-    def post(request, n, format=None):
-        """ create n new empty models and return the uuids """
-        uuids = []
-        for i in range(n):
-            qrcode = QRCode()
-            if request is not {}:
-                serializer = QRCodeSerializer(qrcode, data=request.data)
-            else:
-                serializer = QRCodeSerializer(
-                    qrcode, data={"title": f"generated with batch number: {str(i)}"})
-            if serializer.is_valid():
-                serializer.save()
-                uuids.append(serializer.data['id'])
-            else:
-                Response(serializer.errors,
-                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(uuids)
-
-
 class QRCodeDetails(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
 
@@ -114,14 +77,3 @@ class QRCodeDetails(APIView):
         hit.save()
         serializer = QRCodeSerializer(qrcode)
         return Response(serializer.data)
-
-    def put(self, request, uuid, format=None):
-        if QRCode.objects.filter(uuid=uuid).exists():
-            qrcode = self.get_object(uuid)
-        else:
-            qrcode = QRCode(request.data)
-        serializer = QRCodeSerializer(qrcode, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'qrcode': serializer.data}, template_name='index.html')
-        raise HTTP_400_BAD_REQUEST
