@@ -1,0 +1,23 @@
+version: "3"
+services:
+  web:
+    build: .
+    container_name: qr_code_service
+    volumes:
+      - .:/app
+    expose:
+      - 8000
+    env_file:
+      - .env
+    command: bash -c "gunicorn --workers=3 QRcodeAPI.wsgi -b 0.0.0.0:8000"
+  nginx:
+    build: ./nginx/
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d
+      - ./logs/:/app/logs
+    ports:
+      - 1337:80
+    depends_on:
+      - web
+    links:
+      - web
