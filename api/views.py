@@ -2,10 +2,10 @@ from django.views.generic.list import ListView
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.exceptions import NotAuthenticated
 from api.models import ApiHit, QRCode
 from api.serializers import QRCodeSerializer
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from rest_framework.views import APIView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
@@ -47,11 +47,14 @@ class QRCodeDetails(APIView):
         qrcode = self.get_object(uuid)
 
         if request.accepted_renderer.format == 'json' or format == 'json':
-            hit = ApiHit(
-                code=qrcode, action='json')
-            hit.save()
-            serializer = QRCodeSerializer(qrcode)
-            return Response(serializer.data)
+            if request.user.is_authenticated:
+                hit = ApiHit(
+                    code=qrcode, action='json')
+                hit.save()
+                serializer = QRCodeSerializer(qrcode)
+                return Response(serializer.data)
+            else:
+                raise NotAuthenticated
 
         if request.accepted_renderer.format == 'html' or format == 'html':
             if qrcode.urls.count() == 0:
