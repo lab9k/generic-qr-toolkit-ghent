@@ -2,7 +2,7 @@ version: "3"
 services:
   web:
     build: .
-    container_name: qr_code_service
+    container_name: qr_code_toolkit
     volumes:
       - .:/app
     expose:
