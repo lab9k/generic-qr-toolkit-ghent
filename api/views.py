@@ -34,6 +34,7 @@ class CodeView(DetailView):
 
 class QRCodeDetails(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    permission_classes = []
 
     @staticmethod
     def get_object(uuid):
