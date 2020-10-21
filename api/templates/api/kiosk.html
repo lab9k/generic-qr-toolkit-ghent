@@ -1,4 +1,4 @@
-{% extends 'layout.html' %} {% block content %}
+{% extends 'api/layout.html' %} {% block content %}
 <div class="container">
   <div class="row">
     {% for url in qrcode.urls.all %}
@@ -16,10 +16,10 @@
 </div>
 <script>
   (() => {
-    document.querySelectorAll('.btn-rnd').forEach((el) => {
+    document.querySelectorAll(".btn-rnd").forEach((el) => {
       const color = randomColor({
-        luminosity: 'light',
-        hue: 'blue',
+        luminosity: "light",
+        hue: "blue",
       });
       el.style.backgroundColor = color;
       el.style.borderColor = color;

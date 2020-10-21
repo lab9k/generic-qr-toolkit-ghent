@@ -13,13 +13,13 @@ from django.views.generic import DetailView, ListView
 
 
 class CodeList(ListView):
-    template_name = 'code_list.html'
+    template_name = 'api/code_list.html'
     queryset = QRCode.objects.all()
     context_object_name = 'codes'
 
 
 class CodeView(DetailView):
-    template_name = 'code.html'
+    template_name = 'api/code.html'
     pk_url_kwarg = 'uuid'
     queryset = QRCode.objects.all()
     context_object_name = 'code'
@@ -58,7 +58,9 @@ class QRCodeDetails(APIView):
 
         if request.accepted_renderer.format == 'html' or format == 'html':
             if qrcode.urls.count() == 0:
-                return Response({'qrcode': qrcode}, template_name='index.html')
+                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
+                hit.save()
+                return Response({'qrcode': qrcode}, template_name='api/index.html')
 
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.REDIRECT:
                 hit = ApiHit(
@@ -68,13 +70,13 @@ class QRCodeDetails(APIView):
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.KIOSK:
                 hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
                 hit.save()
-                return Response({'qrcode': qrcode}, template_name='kiosk.html')
+                return Response({'qrcode': qrcode}, template_name='api/kiosk.html')
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.INFO_PAGE:
                 hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
                 hit.save()
-                return Response({'qrcode': qrcode}, template_name='index.html')
+                return Response({'qrcode': qrcode}, template_name='api/index.html')
 
-            return Response({'qrcode': qrcode}, template_name='index.html')
+            return Response({'qrcode': qrcode}, template_name='api/index.html')
 
         hit = ApiHit(
             code=qrcode, action='json')

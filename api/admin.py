@@ -1,6 +1,10 @@
 from django.contrib import admin
+from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
+from django.urls import path
+from django.forms.models import model_to_dict
+import json
 
 from api.models import ApiHit, Department, LinkUrl, QRCode
 from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
@@ -10,6 +14,26 @@ from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
 class ApiHitAdmin(admin.ModelAdmin):
     readonly_fields = ('hit_date', 'action', 'code')
     list_display = ('code', 'hit_date', 'action')
+    change_list_template = 'api/change_list.html'
+
+    def get_urls(self):
+        urls = super(ApiHitAdmin, self).get_urls()
+        urls += [
+            path('analytics', self.admin_site.admin_view(self.analytics_view))
+        ]
+        return urls
+
+    def analytics_view(self, request):
+        clctx = self.changelist_view(request).context_data
+        clctx['title'] = 'Api Hit Analytics'
+        clctx['is_nav_sidebar_enabled'] = False
+        context = dict(
+            self.admin_site.each_context(request),
+            **clctx,
+            apihits=json.dumps([model_to_dict(x) for x in ApiHit.objects.all()])
+        )
+
+        return TemplateResponse(request, template='api/apihit.analytics.html', context=context)
 
 
 class LinkUrlInline(admin.StackedInline):
