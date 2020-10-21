@@ -3,8 +3,6 @@ from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 from django.urls import path
-from django.forms.models import model_to_dict
-import json
 
 from api.models import ApiHit, Department, LinkUrl, QRCode
 from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
@@ -30,7 +28,6 @@ class ApiHitAdmin(admin.ModelAdmin):
         context = dict(
             self.admin_site.each_context(request),
             **clctx,
-            apihits=json.dumps([model_to_dict(x) for x in ApiHit.objects.all()])
         )
 
         return TemplateResponse(request, template='api/apihit.analytics.html', context=context)

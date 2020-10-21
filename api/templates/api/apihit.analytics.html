@@ -18,61 +18,84 @@
     <div class="chart-container" style="position:relative;width: 60vw;height: 60vh;margin:auto;">
         <canvas id="mchart"></canvas>
     </div>
-
     <script>
-      const apihits =
-        {{ apihits|safe }};
 
-      const ctx = document.getElementById('mchart');
-      const chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['html', 'json', 'redirect'],
-          datasets: [
-            {
-              label: '# of hits',
-              data: apihits.reduce((acc, curr) => {
-                if (curr.action === 'html') {
-                  acc[0] += 1
-                } else if (curr.action === 'json') {
-                  acc[1] += 1
-                } else if (curr.action === 'redirect') {
-                  acc[2] += 1
-                }
-                return acc
-              }, [0, 0, 0]),
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-              ],
-              borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-              ],
-              borderWidth: 1
-            }
-          ]
+      const App = {
+        init() {
+          this.initState().then(
+            () => this.drawChart('doughnut')
+          );
         },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
+        initState() {
+          this.state = {
+            elements: {
+              chart: null,
+              ctx: document.getElementById('mchart')
+            },
+            data: [],
+            labels: []
+          };
+          return fetch(`/api/apihits`).then(res => res.json()).then(hits => {
+            this.state.data = hits;
+            this.state.labels = [...new Set(hits.map(el => el.action))];
+          })
+        },
+        drawChart(type) {
+          if (this.state.elements.chart) {
+            this.state.elements.chart.destroy()
+          }
+          this.state.elements.chart = new Chart(
+            this.state.elements.ctx,
+            {
+              type,
+              data: {
+                labels: this.state.labels,
+                datasets: [
+                  {
+                    label: '# of hits',
+                    data: this.state.data.reduce((acc, curr) => {
+                      const actionIndex = this.state.labels.findIndex(el => el === curr.action)
+                      acc[actionIndex] += 1
+                      return acc
+                    }, [0, 0, 0]),
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 0.2)',
+                      'rgba(54, 162, 235, 0.2)',
+                      'rgba(255, 206, 86, 0.2)',
+                      'rgba(75, 192, 192, 0.2)',
+                      'rgba(153, 102, 255, 0.2)',
+                      'rgba(255,159,64,0.2)'
+                    ],
+                    borderColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)',
+                      'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                  }
+                ]
+              },
+              options: {
+                scales: {},
+                responsive: true,
+                maintainAspectRatio: false,
+                onClick: (ev, clickedOn) => {
+                  if (clickedOn.length > 0) {
+                    const id = clickedOn[0]._index;
+                    const label = this.state.labels[id];
+                    fetch(`/api/apihits/?search=${label}`).then(res => res.json()).then(hits => console.log(hits))
+                  }
+                }
               }
-            }]
-          },
-          responsive: true,
-          maintainAspectRatio: false,
+            }
+          )
         }
-      })
+      };
+
+      App.init();
     </script>
 {% endblock content %}
 {% block extrahead %}
