@@ -47,6 +47,15 @@ class QRCodeAdmin(VersionAdmin):
     search_fields = ('title', 'department__name')
     inlines = [LinkUrlInline]
 
+    def get_queryset(self, request):
+        qs = super(QRCodeAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(department=request.user.department)
+
+    def get_model_perms(self, request):
+        return super(QRCodeAdmin, self).get_model_perms(request)
+
     def get_code_image_url(self, obj):
         return mark_safe(f'<span><a href="/code/{obj.uuid}">/code/{obj.uuid}</a></span>')
 

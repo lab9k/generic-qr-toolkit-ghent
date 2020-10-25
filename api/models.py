@@ -73,7 +73,7 @@ class QRCode(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
-    extra_data = models.JSONField(default=dict,
+    extra_data = models.JSONField(default=dict, blank=True,
                                   help_text='Use this to add extra data to the rest-api response for this code.<br/>')
 
     def __str__(self) -> str:
