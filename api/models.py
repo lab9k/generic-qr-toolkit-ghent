@@ -4,6 +4,7 @@ import uuid
 
 
 class ApiHit(models.Model):
+    # noinspection PyPep8Naming
     class ACTION_CHOICES(models.TextChoices):
         HTML = 'html', _('Html')
         JSON = 'json', _('Json Response')
@@ -48,6 +49,7 @@ Information Page Mode: Show basic info with links to different urls
 
 
 class QRCode(models.Model):
+    # noinspection PyPep8Naming
     class REDIRECT_MODE_CHOICES(models.TextChoices):
         KIOSK = 'kiosk', _('Kiosk Mode')
         REDIRECT = 'redirect', _('Redirect Mode')
@@ -65,10 +67,14 @@ class QRCode(models.Model):
     basic_info = models.TextField(blank=True, default='')
 
     mode = models.CharField(
-        max_length=16, choices=REDIRECT_MODE_CHOICES.choices, default=REDIRECT_MODE_CHOICES.REDIRECT, help_text=QR_MODE_HELP_TEXT)
+        max_length=16, choices=REDIRECT_MODE_CHOICES.choices, default=REDIRECT_MODE_CHOICES.REDIRECT,
+        help_text=QR_MODE_HELP_TEXT)
 
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
+
+    extra_data = models.JSONField(default=dict,
+                                  help_text='Use this to add extra data to the rest-api response for this code.<br/>')
 
     def __str__(self) -> str:
         if self.department is not None:
