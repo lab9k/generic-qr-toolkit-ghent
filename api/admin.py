@@ -62,6 +62,11 @@ class QRCodeAdmin(VersionAdmin):
     def get_code_url(self, obj):
         return mark_safe(f'<span><a href="/{obj.uuid}">/{obj.uuid}</a></span>')
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'department' and not request.user.is_superuser:
+            kwargs['queryset'] = Department.objects.filter(name__exact=request.user.department.name)
+        return super(QRCodeAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
     get_code_image_url.short_description = 'Code image'
     get_code_url.short_description = 'Code url'
 

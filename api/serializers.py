@@ -1,11 +1,14 @@
 from rest_framework import serializers
+from drf_writable_nested.serializers import WritableNestedModelSerializer
+from drf_writable_nested.mixins import UniqueFieldsMixin
 from api.models import Department, LinkUrl, QRCode, ApiHit
 
 
-class DepartmentSerializer(serializers.ModelSerializer):
+class DepartmentSerializer(UniqueFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ['name']
+        fields = '__all__'
+        read_only_fields = ['name']
 
 
 class LinkUrlSerializer(serializers.ModelSerializer):
@@ -14,19 +17,17 @@ class LinkUrlSerializer(serializers.ModelSerializer):
         exclude = ['id', 'code']
 
 
-class QRCodeSerializer(serializers.ModelSerializer):
-
+class QRCodeSerializer(WritableNestedModelSerializer):
     department = DepartmentSerializer()
     urls = LinkUrlSerializer(many=True)
 
     class Meta:
         model = QRCode
-        exclude = ['id']
+        fields = '__all__'
         read_only_fields = ['created', 'last_updated']
 
 
 class ApiHitSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ApiHit
         fields = '__all__'

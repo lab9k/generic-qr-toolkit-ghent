@@ -18,7 +18,7 @@ class ApiHit(models.Model):
 
 
 class Department(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
 
     def __str__(self) -> str:
         return f'{self.name}'
@@ -57,7 +57,7 @@ class QRCode(models.Model):
 
     title = models.CharField(blank=True, default='', max_length=100)
     department = models.ForeignKey(
-        to=Department, on_delete=models.SET_NULL, null=True)
+        to=Department, on_delete=models.CASCADE)
 
     uuid = models.UUIDField(
         default=uuid.uuid4,
