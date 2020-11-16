@@ -13,6 +13,7 @@ class ApiHitAdmin(admin.ModelAdmin):
     readonly_fields = ('hit_date', 'action', 'code')
     list_display = ('code', 'hit_date', 'action')
     change_list_template = 'api/change_list.html'
+    list_filter = (('code__department', admin.RelatedOnlyFieldListFilter),)
 
     def get_urls(self):
         urls = super(ApiHitAdmin, self).get_urls()
