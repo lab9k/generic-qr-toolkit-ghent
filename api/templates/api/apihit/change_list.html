@@ -23,8 +23,8 @@
                     labels: []
                 };
                 const params = new URLSearchParams(window.location.search)
-                const querystring = params.has('code__department__id__exact') ?
-                    `?dept_id=${params.get('code__department__id__exact')}` : ''
+                const querystring = params.has('code__department__name') ?
+                    `?dept=${params.get('code__department__name')}` : ''
 
                 const url = `/api/apihits/${querystring}`
                 console.log(url)
@@ -88,6 +88,18 @@
             }
         };
         window.onload = function () {
+            const title = document.getElementById('filtertitle');
+
+            const params = new URLSearchParams(window.location.search)
+            const deptName = params.has('code__department__name') ?
+                params.get('code__department__name') : null
+
+            if (deptName) {
+                title.innerText = `Overview: ${deptName}`
+            } else {
+                title.innerText = 'Overview: all departments'
+            }
+
             App.init();
         }
     </script>
@@ -105,6 +117,7 @@
 {% block content %}
     <h1> Graphs </h1>
     <hr>
+    <h3 id="filtertitle"></h3>
     <div class="row">
         <div class="col-sm-4">
             <canvas id="mchart" style="width: 500px !important;"></canvas>

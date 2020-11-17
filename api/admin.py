@@ -13,25 +13,7 @@ class ApiHitAdmin(admin.ModelAdmin):
     readonly_fields = ('hit_date', 'action', 'code')
     list_display = ('code', 'hit_date', 'action')
     change_list_template = 'api/apihit/change_list.html'
-    list_filter = (('code__department', admin.RelatedOnlyFieldListFilter),)
-
-    def get_urls(self):
-        urls = super(ApiHitAdmin, self).get_urls()
-        urls += [
-            path('analytics', self.admin_site.admin_view(self.analytics_view))
-        ]
-        return urls
-
-    def analytics_view(self, request):
-        clctx = self.changelist_view(request).context_data
-        clctx['title'] = 'Api Hit Analytics'
-        clctx['is_nav_sidebar_enabled'] = False
-        context = dict(
-            self.admin_site.each_context(request),
-            **clctx,
-        )
-
-        return TemplateResponse(request, template='api/apihit/apihit.analytics.html', context=context)
+    list_filter = ('code__department__name',)
 
 
 class LinkUrlInline(admin.StackedInline):
