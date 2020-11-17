@@ -1,0 +1,114 @@
+{% extends 'admin/change_list.html' %}
+{% load admin_list %}
+
+{% block extrahead %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
+            integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw=="
+            crossorigin="anonymous"></script>
+    <script>
+
+        const App = {
+            init() {
+                this.initState().then(
+                    () => this.drawChart('doughnut')
+                );
+            },
+            initState() {
+                this.state = {
+                    elements: {
+                        chart: null,
+                        ctx: document.getElementById('mchart')
+                    },
+                    data: [],
+                    labels: []
+                };
+                const params = new URLSearchParams(window.location.search)
+                const querystring = params.has('code__department__id__exact') ?
+                    `?dept_id=${params.get('code__department__id__exact')}` : ''
+
+                const url = `/api/apihits/${querystring}`
+                console.log(url)
+                return fetch(url).then(res => res.json()).then(hits => {
+                    this.state.data = hits;
+                    this.state.labels = [...new Set(hits.map(el => el.action))];
+                })
+            },
+            drawChart(type) {
+                if (this.state.elements.chart) {
+                    this.state.elements.chart.destroy()
+                }
+                this.state.elements.chart = new Chart(
+                    this.state.elements.ctx,
+                    {
+                        type,
+                        data: {
+                            labels: this.state.labels,
+                            datasets: [
+                                {
+                                    label: '# of hits',
+                                    data: this.state.data.reduce((acc, curr) => {
+                                        const actionIndex = this.state.labels.findIndex(el => el === curr.action)
+                                        acc[actionIndex] += 1
+                                        return acc
+                                    }, [0, 0, 0]),
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255,159,64,0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {},
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            onClick: (ev, clickedOn) => {
+                                if (clickedOn.length > 0) {
+                                    const id = clickedOn[0]._index;
+                                    const label = this.state.labels[id];
+                                    fetch(`/api/apihits/?action=${label}`).then(res => res.json()).then(hits => console.log(hits))
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        };
+        window.onload = function () {
+            App.init();
+        }
+    </script>
+{% endblock %}
+
+{% comment %}{% block object-tools-items %}
+    {% change_list_object_tools %}
+    <li>
+        <a href="./analytics" class="viewlink">
+            Analytics
+        </a>
+    </li>
+{% endblock %}{% endcomment %}
+
+{% block content %}
+    <h1> Graphs </h1>
+    <hr>
+    <div class="row">
+        <div class="col-sm-4">
+            <canvas id="mchart" style="width: 500px !important;"></canvas>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

@@ -12,7 +12,7 @@ from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
 class ApiHitAdmin(admin.ModelAdmin):
     readonly_fields = ('hit_date', 'action', 'code')
     list_display = ('code', 'hit_date', 'action')
-    change_list_template = 'api/change_list.html'
+    change_list_template = 'api/apihit/change_list.html'
     list_filter = (('code__department', admin.RelatedOnlyFieldListFilter),)
 
     def get_urls(self):
@@ -31,7 +31,7 @@ class ApiHitAdmin(admin.ModelAdmin):
             **clctx,
         )
 
-        return TemplateResponse(request, template='api/apihit.analytics.html', context=context)
+        return TemplateResponse(request, template='api/apihit/apihit.analytics.html', context=context)
 
 
 class LinkUrlInline(admin.StackedInline):

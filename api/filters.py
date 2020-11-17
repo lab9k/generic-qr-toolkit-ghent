@@ -110,3 +110,5 @@ class DepartmentFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         pass
+
+

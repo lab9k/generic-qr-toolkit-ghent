@@ -3,7 +3,7 @@ from api.models import ApiHit, QRCode
 from api.permissions import IsFromDepartmentOrReadOnly
 from rest_framework import viewsets
 from rest_framework import permissions
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateTimeFilter, NumberFilter
 
 
 class CodeViewSet(viewsets.ModelViewSet):
@@ -14,10 +14,17 @@ class CodeViewSet(viewsets.ModelViewSet):
     filterset_fields = ('mode', 'title', 'created', 'last_updated', 'uuid')
 
 
+class ApiHitFilterSet(FilterSet):
+    dept = CharFilter(field_name="code__department__name", lookup_expr='icontains', label='Department name')
+    dept_id = NumberFilter(field_name='code__department__id', lookup_expr='exact', label='Department id')
+    action = CharFilter(field_name='action', lookup_expr='icontains')
+    hit_date = DateTimeFilter(field_name='hit_date')
+
+
 class ApiHitViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ApiHitSerializer
     queryset = ApiHit.objects.all()
     permission_classes = [permissions.IsAuthenticated, ]
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('action', 'hit_date', 'code')
+    filter_class = ApiHitFilterSet
