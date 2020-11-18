@@ -2,22 +2,36 @@
 {% load admin_list %}
 
 {% block extrahead %}
+    {{ block.super }}
+    <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/css/bootstrap.min.css"
+            integrity="sha384-DhY6onE6f3zzKbjUPRc2hOzGAdEf4/Dz+WJwBvEYL/lkkIsI3ihufq9hk9K4lVoK"
+            crossorigin="anonymous"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
             integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw=="
             crossorigin="anonymous"></script>
     <script>
 
         const App = {
-            init() {
-                this.initState().then(
-                    () => this.drawChart('doughnut')
+            init(deptname) {
+                this.initState(deptname).then(
+                    () => {
+                        this.drawChart();
+                        this.drawLineChart();
+                    }
                 );
             },
-            initState() {
+            initState(deptname) {
                 this.state = {
                     elements: {
-                        chart: null,
-                        ctx: document.getElementById('mchart')
+                        donutchart: null,
+                        linechart: null,
+                        donutCtx: document.getElementById('mchart'),
+                        lineCtx: document.getElementById('linechart').getContext('2d'),
+                        deptname: deptname
                     },
                     data: [],
                     labels: []
@@ -27,20 +41,20 @@
                     `?dept=${params.get('code__department__name')}` : ''
 
                 const url = `/api/apihits/${querystring}`
-                console.log(url)
                 return fetch(url).then(res => res.json()).then(hits => {
+                    console.log(hits)
                     this.state.data = hits;
                     this.state.labels = [...new Set(hits.map(el => el.action))];
                 })
             },
-            drawChart(type) {
-                if (this.state.elements.chart) {
-                    this.state.elements.chart.destroy()
+            drawChart() {
+                if (this.state.elements.donutchart) {
+                    this.state.elements.donutchart.destroy()
                 }
-                this.state.elements.chart = new Chart(
-                    this.state.elements.ctx,
+                this.state.elements.donutchart = new Chart(
+                    this.state.elements.donutCtx,
                     {
-                        type,
+                        type: 'doughnut',
                         data: {
                             labels: this.state.labels,
                             datasets: [
@@ -85,8 +99,96 @@
                         }
                     }
                 )
+            },
+            drawLineChart() {
+                const data = this.state.data;
+                const mapped_data = data.map(hit => {
+                    console.log(hit);
+                    return {
+                        t: moment.utc(hit.hit_date, "YYYY-MM-DDTHH:mm:ss.SSSSZ").startOf('day').format("YYYY-MM-DD"),
+                        y: Math.random() * 10
+                    }
+                }).reduce((acc, curr) => {
+                    let found = acc.find(el => el.t === curr.t)
+                    if (!found) {
+                        acc.push({...curr, y: 1});
+                    } else {
+                        found.y += 1;
+                    }
+                    return acc
+                }, []);
+
+
+                if (this.state.elements.linechart) {
+                    this.state.elements.linechart.destroy();
+                }
+
+                this.state.elements.linechart = new Chart(
+                    this.state.elements.lineCtx, {
+                        type: 'line',
+                        data: {
+                            labels: this.state.labels,
+                            datasets: [{
+                                label: this.state.elements.deptname,
+                                data: mapped_data,
+                                type: 'line',
+                                pointRadius: 4,
+                                fill: false,
+                                lineTension: 0,
+                                borderWidth: 2,
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    label: 'date',
+                                    type: 'time',
+                                    distribution: 'series',
+                                    offset: true,
+                                    ticks: {
+                                        major: {
+                                            enabled: true,
+                                            fontStyle: 'bold'
+                                        },
+                                        source: 'data',
+                                        autoSkip: true,
+                                        autoSkipPadding: 75,
+                                        maxRotation: 0,
+                                        sampleSize: 100
+                                    },
+                                    time: {
+                                        displayFormats: {
+                                            day: 'DD/MM/YY',
+                                            year: 'DD/MM/YY'
+                                        }
+                                    }
+                                }],
+                                yAxes: [{
+                                    gridLines: {
+                                        drawBorder: true
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Hits on day'
+                                    },
+                                    ticks: {
+                                        // Include a dollar sign in the ticks
+                                        callback: function (value, index, values) {
+                                            return `${value}`.split('.').length > 1 ? null : value
+                                        }
+                                    }
+                                }]
+                            }
+                        }
+                    }
+                );
+
+
             }
         };
+
         window.onload = function () {
             const title = document.getElementById('filtertitle');
 
@@ -100,7 +202,8 @@
                 title.innerText = 'Overview: all departments'
             }
 
-            App.init();
+            App.init(deptName || 'hits');
+
         }
     </script>
 {% endblock %}
@@ -113,15 +216,23 @@
         </a>
     </li>
 {% endblock %}{% endcomment %}
-
 {% block content %}
-    <h1> Graphs </h1>
+    <h1 style="font-weight: 300; font-size: 20px;color: #666;margin: 20px 0 20px"> Graphs </h1>
     <hr>
-    <h3 id="filtertitle"></h3>
+    <h3 id="filtertitle" style="font-weight: 200; font-size: 18px;color: #666;margin: 20px 0 20px"></h3>
     <div class="row">
         <div class="col-sm-4">
             <canvas id="mchart" style="width: 500px !important;"></canvas>
         </div>
+        <div class="col-sm-4">
+            <canvas id="linechart" style="width: 200px !important;"></canvas>
+        </div>
     </div>
+    <hr/>
+    {% block content_title %}
+    {% endblock %}
+    {% if title %}<h1 style="font-weight: 300; font-size: 20px;color: #666;margin: 20px 0 20px">{{ title }}</h1>
+    {% endif %}
+
     {{ block.super }}
 {% endblock %}
