@@ -62,7 +62,7 @@ class QRCodeAdmin(VersionAdmin):
 
         downloaded_files = []
         for code in queryset.all():
-            url = request.build_absolute_uri(reverse('code-detail', kwargs=dict(uuid=code.uuid)))
+            url = request.build_absolute_uri(reverse('code-dl', kwargs=dict(uuid=code.uuid)))
             res = requests.get(url)
             zf.writestr(f'{code.title}-{code.uuid}.svg', res.content)
             downloaded_files.append(code.title)

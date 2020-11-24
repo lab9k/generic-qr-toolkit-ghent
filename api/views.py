@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework.exceptions import NotAuthenticated
 from api.models import ApiHit, QRCode
 from api.serializers import QRCodeSerializer
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, HttpResponse
 from rest_framework.views import APIView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.core.exceptions import ValidationError
 from django.views.generic import DetailView, ListView
 import requests
@@ -20,25 +20,23 @@ class CodeList(ListView):
     context_object_name = 'codes'
 
 
+def download_code(request, uuid):
+    code = get_object_or_404(QRCode, uuid=uuid)
+    code_url = request.build_absolute_uri(reverse("qrcode-detail", kwargs=dict(uuid=code.uuid)))
+    image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
+    image_resp = requests.get(image_url).text
+
+    response = HttpResponse(image_resp, content_type='image/svg+xml')
+    response['Content-Length'] = len(response.content)
+    response['Content-Disposition'] = f'attachment; filename="{code.title}.svg"'
+    return response
+
+
 class CodeView(DetailView):
     template_name = 'api/qrcode/code.html'
     pk_url_kwarg = 'uuid'
     queryset = QRCode.objects.all()
     context_object_name = 'code'
-
-    def get(self, *args, **kwargs):
-        response = super(CodeView, self).get(*args, **kwargs)
-
-        code_url = self.request.build_absolute_uri(reverse("qrcode-detail", kwargs=dict(uuid=self.object.uuid)))
-        image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
-        image_resp = requests.get(image_url).text
-
-        response.content_type = 'image/svg+xml'
-        response.content = image_resp
-        response['Content-Length'] = len(response.content)
-        response['Content-Disposition'] = f'attachment; filename="{self.object.title}.svg"'
-
-        return response
 
     def get_object(self, queryset=None):
         uuid = self.kwargs.get(self.pk_url_kwarg)
