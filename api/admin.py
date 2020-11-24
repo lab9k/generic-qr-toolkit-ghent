@@ -29,6 +29,7 @@ class QRCodeAdmin(VersionAdmin):
                    HasBasicInfoFilter, ('department', admin.RelatedOnlyFieldListFilter))
     search_fields = ('title', 'department__name')
     inlines = [LinkUrlInline]
+    change_list_template = 'api/qrcode/change_list.html'
 
     def get_queryset(self, request):
         qs = super(QRCodeAdmin, self).get_queryset(request)
@@ -45,13 +46,31 @@ class QRCodeAdmin(VersionAdmin):
     def get_code_url(self, obj):
         return mark_safe(f'<span><a href="/{obj.uuid}">/{obj.uuid}</a></span>')
 
+    get_code_image_url.short_description = 'Code image'
+    get_code_url.short_description = 'Code url'
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'department' and not request.user.is_superuser:
             kwargs['queryset'] = Department.objects.filter(name__exact=request.user.department.name)
         return super(QRCodeAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-    get_code_image_url.short_description = 'Code image'
-    get_code_url.short_description = 'Code url'
+    def get_urls(self):
+        urls = super(QRCodeAdmin, self).get_urls()
+        custom_urls = [
+            path('scan/', self.admin_site.admin_view(self.scan_view))
+        ]
+        return custom_urls + urls
+
+    def scan_view(self, request):
+        context = dict(
+            # Include common variables for rendering the admin template.
+            self.admin_site.each_context(request),
+            # Anything else you want in the context...
+            is_nav_sidebar_enabled=False,
+            title='Scan qr code'
+        )
+
+        return TemplateResponse(request, 'api/qrcode/scanner.html', context)
 
 
 @admin.register(Department)

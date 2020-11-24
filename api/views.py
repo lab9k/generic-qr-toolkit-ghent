@@ -13,13 +13,13 @@ from django.views.generic import DetailView, ListView
 
 
 class CodeList(ListView):
-    template_name = 'api/code_list.html'
+    template_name = 'api/qrcode/code_list.html'
     queryset = QRCode.objects.all()
     context_object_name = 'codes'
 
 
 class CodeView(DetailView):
-    template_name = 'api/code.html'
+    template_name = 'api/qrcode/code.html'
     pk_url_kwarg = 'uuid'
     queryset = QRCode.objects.all()
     context_object_name = 'code'

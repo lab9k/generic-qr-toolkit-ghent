@@ -1,10 +1,8 @@
 from rest_framework import serializers
-from drf_writable_nested.serializers import WritableNestedModelSerializer
-from drf_writable_nested.mixins import UniqueFieldsMixin
 from api.models import Department, LinkUrl, QRCode, ApiHit
 
 
-class DepartmentSerializer(UniqueFieldsMixin, serializers.ModelSerializer):
+class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = '__all__'
@@ -14,17 +12,30 @@ class DepartmentSerializer(UniqueFieldsMixin, serializers.ModelSerializer):
 class LinkUrlSerializer(serializers.ModelSerializer):
     class Meta:
         model = LinkUrl
-        exclude = ['id', 'code']
+        exclude = ['code']
 
 
-class QRCodeSerializer(WritableNestedModelSerializer):
-    department = DepartmentSerializer()
+class QRCodeSerializer(serializers.ModelSerializer):
     urls = LinkUrlSerializer(many=True)
 
     class Meta:
         model = QRCode
         fields = '__all__'
-        read_only_fields = ['created', 'last_updated']
+        read_only_fields = ['created', 'last_updated', 'urls']
+
+    def create(self, validated_data):
+        link_urls = validated_data.pop('urls')
+        code = super(QRCodeSerializer, self).create(validated_data)
+        for url in link_urls:
+            LinkUrl.objects.create(code=code, **url)
+        return code
+
+    def update(self, instance, validated_data):
+        link_urls = validated_data.pop('urls')
+        code = super(QRCodeSerializer, self).update(instance, validated_data)
+        for url in link_urls:
+            LinkUrl.objects.get_or_create(code=code, **url)
+        return code
 
 
 class ApiHitSerializer(serializers.ModelSerializer):

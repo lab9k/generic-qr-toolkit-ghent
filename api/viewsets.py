@@ -1,5 +1,5 @@
-from api.serializers import QRCodeSerializer, ApiHitSerializer
-from api.models import ApiHit, QRCode
+from api.serializers import QRCodeSerializer, ApiHitSerializer, DepartmentSerializer
+from api.models import ApiHit, QRCode, Department
 from api.permissions import IsFromDepartmentOrReadOnly
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -28,3 +28,12 @@ class ApiHitViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filter_class = ApiHitFilterSet
+
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    serializer_class = DepartmentSerializer
+    queryset = Department.objects.all()
+    permission_classes = [permissions.IsAuthenticated, ]
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name',)
