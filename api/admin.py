@@ -9,7 +9,6 @@ import io
 import zipfile
 
 from api.models import ApiHit, Department, LinkUrl, QRCode
-from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
 
 
 @admin.register(ApiHit)
@@ -29,8 +28,7 @@ class LinkUrlInline(admin.StackedInline):
 class QRCodeAdmin(VersionAdmin):
     list_display = ('title', 'department',
                     'get_code_url', 'get_code_image_url')
-    list_filter = (HasRedirectFilter, HasFormFilter,
-                   HasBasicInfoFilter, ('department', admin.RelatedOnlyFieldListFilter))
+    list_filter = (('department', admin.RelatedOnlyFieldListFilter),)
     search_fields = ('title', 'department__name')
     inlines = [LinkUrlInline]
     change_list_template = 'api/qrcode/change_list.html'

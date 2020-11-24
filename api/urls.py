@@ -14,6 +14,7 @@ urlpatterns = [
     path('code/', views.CodeList.as_view()),
     path('code/<uuid>/', views.CodeView.as_view(), name='code-detail'),
     path('code/<uuid>/dl', views.download_code, name='code-dl'),
+    path('code/generate/<int:amount>', views.generate, name='code-generate'),
     path('<uuid:uuid>/', views.QRCodeDetails.as_view(), name='qrcode-detail'),
 ]
 
