@@ -34,7 +34,7 @@ class QRCodeAdmin(VersionAdmin):
     search_fields = ('title', 'department__name')
     inlines = [LinkUrlInline]
     change_list_template = 'api/qrcode/change_list.html'
-    actions = ['download_code', ]
+    actions = ['download_codes', ]
 
     def get_queryset(self, request):
         qs = super(QRCodeAdmin, self).get_queryset(request)
@@ -54,7 +54,7 @@ class QRCodeAdmin(VersionAdmin):
     get_code_image_url.short_description = 'Code image'
     get_code_url.short_description = 'Code url'
 
-    def download_code(self, request, queryset):
+    def download_codes(self, request, queryset):
         zip_filename = 'archive.zip'
         s = io.BytesIO()
 
