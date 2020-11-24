@@ -34,7 +34,7 @@
             if (detail[0].status === 404) {
                 const url = new URL(detail[0].url)
                 const newCodeLink = document.getElementById('new-code')
-                newCodeLink.href = newCodeLink.href.replace('%uuid%', url.pathname.replaceAll('/', ''))
+                newCodeLink.href = newCodeLink.href.replace('%uuid%', url.pathname.replace(/\//g, ''))
                 newCodeLink.click();
             } else {
                 error.innerText = detail[0].message
