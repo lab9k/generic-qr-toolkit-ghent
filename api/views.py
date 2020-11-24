@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.views.generic.list import ListView
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from rest_framework.views import APIView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
 from django.views.generic import DetailView, ListView
+import requests
 
 
 class CodeList(ListView):
@@ -23,6 +25,20 @@ class CodeView(DetailView):
     pk_url_kwarg = 'uuid'
     queryset = QRCode.objects.all()
     context_object_name = 'code'
+
+    def get(self, *args, **kwargs):
+        response = super(CodeView, self).get(*args, **kwargs)
+
+        code_url = self.request.build_absolute_uri(reverse("qrcode-detail", kwargs=dict(uuid=self.object.uuid)))
+        image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
+        image_resp = requests.get(image_url).text
+
+        response.content_type = 'image/svg+xml'
+        response.content = image_resp
+        response['Content-Length'] = len(response.content)
+        response['Content-Disposition'] = f'attachment; filename="{self.object.title}.svg"'
+
+        return response
 
     def get_object(self, queryset=None):
         uuid = self.kwargs.get(self.pk_url_kwarg)

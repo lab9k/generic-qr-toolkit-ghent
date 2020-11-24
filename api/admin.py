@@ -1,8 +1,12 @@
 from django.contrib import admin
+from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
-from django.urls import path
+from django.urls import path, reverse
+import requests
+import io
+import zipfile
 
 from api.models import ApiHit, Department, LinkUrl, QRCode
 from api.filters import HasRedirectFilter, HasBasicInfoFilter, HasFormFilter
@@ -30,6 +34,7 @@ class QRCodeAdmin(VersionAdmin):
     search_fields = ('title', 'department__name')
     inlines = [LinkUrlInline]
     change_list_template = 'api/qrcode/change_list.html'
+    actions = ['download_code', ]
 
     def get_queryset(self, request):
         qs = super(QRCodeAdmin, self).get_queryset(request)
@@ -48,6 +53,28 @@ class QRCodeAdmin(VersionAdmin):
 
     get_code_image_url.short_description = 'Code image'
     get_code_url.short_description = 'Code url'
+
+    def download_code(self, request, queryset):
+        zip_filename = 'archive.zip'
+        s = io.BytesIO()
+
+        zf = zipfile.ZipFile(s, mode='w', compression=zipfile.ZIP_DEFLATED)
+
+        downloaded_files = []
+        for code in queryset.all():
+            url = request.build_absolute_uri(reverse('code-detail', kwargs=dict(uuid=code.uuid)))
+            res = requests.get(url)
+            zf.writestr(f'{code.title}-{code.uuid}.svg', res.content)
+            downloaded_files.append(code.title)
+
+        zf.close()
+
+        resp = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
+        resp['Content-Disposition'] = f'attachment; filename={zip_filename}'
+
+        message = f'Downloaded zip with files: {", ".join(downloaded_files)}'
+        self.message_user(request, message=message)
+        return resp
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'department' and not request.user.is_superuser:
