@@ -103,7 +103,7 @@ class QRCodeDetails(APIView):
             if qrcode.urls.count() == 0:
                 hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
                 hit.save()
-                return Response({'qrcode': qrcode}, template_name='api/index.html')
+                return Response({'qrcode': qrcode}, template_name='api/qrcode/index.html')
 
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.REDIRECT:
                 hit = ApiHit(
@@ -113,13 +113,13 @@ class QRCodeDetails(APIView):
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.KIOSK:
                 hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
                 hit.save()
-                return Response({'qrcode': qrcode}, template_name='api/kiosk.html')
+                return Response({'qrcode': qrcode}, template_name='api/qrcode/kiosk.html')
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.INFO_PAGE:
                 hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
                 hit.save()
-                return Response({'qrcode': qrcode}, template_name='api/index.html')
+                return Response({'qrcode': qrcode}, template_name='api/qrcode/index.html')
 
-            return Response({'qrcode': qrcode}, template_name='api/index.html')
+            return Response({'qrcode': qrcode}, template_name='api/qrcode/index.html')
 
         hit = ApiHit(
             code=qrcode, action='json')
