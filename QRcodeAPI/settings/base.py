@@ -160,10 +160,6 @@ LOGGING = {
         }
     },
     'handlers': {
-        'null': {
-            'level': 'DEBUG',
-            'class': 'logging.NullHandler',
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -171,9 +167,15 @@ LOGGING = {
         }
     },
     'loggers': {
-        'testlogger': {
+        '': {
             'handlers': ['console'],
             'level': 'INFO',
+            'propagate': True
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
         }
     }
 }
