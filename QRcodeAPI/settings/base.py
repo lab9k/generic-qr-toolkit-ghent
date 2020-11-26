@@ -183,7 +183,7 @@ LOGGING = {
 }
 
 SENTRY_DSN = os.environ.get('SENTRY_DSN', None)
-if SENTRY_DSN is not None and not DEBUG:
+if SENTRY_DSN is not None:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
