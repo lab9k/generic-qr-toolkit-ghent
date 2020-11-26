@@ -188,5 +188,5 @@ if SENTRY_DSN is not None and not DEBUG:
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
         send_default_pii=True,
-        traces_sample_rate=0.6
+        traces_sample_rate=1.0
     )
