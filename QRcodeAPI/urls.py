@@ -17,14 +17,8 @@ from django.urls import include, path
 
 from django.contrib import admin
 
-
-def trigger_error(request):
-    division_by_zero = 1 / 0
-
-
 # Wire up our API using automatic URL routing.
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('api.urls')),
-    path('sentry-err-debug/', trigger_error)
 ]
