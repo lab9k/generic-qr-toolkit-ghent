@@ -48,8 +48,6 @@ class QRCodeSerializer(serializers.ModelSerializer):
 
 
 class ApiHitSerializer(serializers.ModelSerializer):
-    department = DepartmentSerializer(read_only=True, source='code.department')
-
     class Meta:
         model = ApiHit
         fields = '__all__'
