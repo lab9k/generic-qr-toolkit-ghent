@@ -17,6 +17,9 @@ class ApiHit(models.Model):
     code = models.ForeignKey(
         'QRCode', on_delete=models.CASCADE, related_name='hits')
 
+    class Meta:
+        ordering = ['-hit_date']
+
 
 class Department(models.Model):
     name = models.CharField(max_length=128, unique=True)
