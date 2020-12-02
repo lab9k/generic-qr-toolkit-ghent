@@ -105,4 +105,4 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 admin.site.site_header = 'Qr Gent Administration'
 admin.site.site_title = 'Qr Gent admin'
-admin.site.site_url = '/code'
+admin.site.site_url = '/api'
