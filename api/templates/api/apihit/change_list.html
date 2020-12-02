@@ -64,7 +64,7 @@
                                         const actionIndex = this.state.labels.findIndex(el => el === curr.action)
                                         acc[actionIndex] += 1
                                         return acc
-                                    }, [0, 0, 0]),
+                                    }, (new Array(this.state.labels.length).fill(0))),
                                     backgroundColor: [
                                         'rgba(255, 99, 132, 0.2)',
                                         'rgba(54, 162, 235, 0.2)',
