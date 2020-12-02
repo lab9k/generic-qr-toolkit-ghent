@@ -6,13 +6,14 @@ import uuid
 class ApiHit(models.Model):
     # noinspection PyPep8Naming
     class ACTION_CHOICES(models.TextChoices):
-        HTML = 'html', _('Html')
+        BASIC_INFO = 'basic_info', _('Basic Info')
+        KIOSK = 'kiosk', _('Kiosk')
         JSON = 'json', _('Json Response')
         REDIRECT = 'redirect', _('Redirect')
 
     hit_date = models.DateTimeField(auto_now_add=True)
     action = models.CharField(
-        max_length=16, choices=ACTION_CHOICES.choices, default=ACTION_CHOICES.HTML)
+        max_length=16, choices=ACTION_CHOICES.choices, default=ACTION_CHOICES.BASIC_INFO)
     code = models.ForeignKey(
         'QRCode', on_delete=models.CASCADE, related_name='hits')
 

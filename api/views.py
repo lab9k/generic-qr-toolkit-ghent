@@ -92,7 +92,7 @@ class QRCodeDetails(APIView):
         if request.accepted_renderer.format == 'json' or format == 'json':
             if request.user.is_authenticated:
                 hit = ApiHit(
-                    code=qrcode, action='json')
+                    code=qrcode, action=ApiHit.ACTION_CHOICES.JSON)
                 hit.save()
                 serializer = QRCodeSerializer(qrcode)
                 return Response(serializer.data)
@@ -101,7 +101,7 @@ class QRCodeDetails(APIView):
 
         if request.accepted_renderer.format == 'html' or format == 'html':
             if qrcode.urls.count() == 0:
-                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
+                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.BASIC_INFO)
                 hit.save()
                 return Response({'qrcode': qrcode}, template_name='api/qrcode/index.html')
 
@@ -111,18 +111,18 @@ class QRCodeDetails(APIView):
                 hit.save()
                 return redirect(qrcode.urls.first().url, permanent=False)
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.KIOSK:
-                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
+                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.KIOSK)
                 hit.save()
                 return Response({'qrcode': qrcode}, template_name='api/qrcode/kiosk.html')
             if qrcode.mode == QRCode.REDIRECT_MODE_CHOICES.INFO_PAGE:
-                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.HTML)
+                hit = ApiHit(code=qrcode, action=ApiHit.ACTION_CHOICES.BASIC_INFO)
                 hit.save()
                 return Response({'qrcode': qrcode}, template_name='api/qrcode/index.html')
 
             return Response({'qrcode': qrcode}, template_name='api/qrcode/index.html')
 
         hit = ApiHit(
-            code=qrcode, action='json')
+            code=qrcode, action=ApiHit.ACTION_CHOICES.JSON)
         hit.save()
         serializer = QRCodeSerializer(qrcode)
         return Response(serializer.data)
