@@ -88,13 +88,7 @@ WSGI_APPLICATION = 'QRcodeAPI.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {}
-db_default = {
-    'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': BASE_DIR / 'db.sqlite3',
-}
-db_config = dj_database_url.config(conn_max_age=600)
-DATABASES['default'] = db_config if db_config != {} else db_default
+DATABASES = {'default': dj_database_url.config(conn_max_age=600, default=f'sqlite:///{BASE_DIR / "db.sqlite3"}')}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
