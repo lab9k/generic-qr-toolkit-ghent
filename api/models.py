@@ -10,12 +10,15 @@ class ApiHit(models.Model):
         KIOSK = 'kiosk', _('Kiosk')
         JSON = 'json', _('Json Response')
         REDIRECT = 'redirect', _('Redirect')
+        ERROR = 'error', _('Error')
 
     hit_date = models.DateTimeField(auto_now_add=True)
     action = models.CharField(
         max_length=16, choices=ACTION_CHOICES.choices, default=ACTION_CHOICES.BASIC_INFO)
     code = models.ForeignKey(
-        'QRCode', on_delete=models.CASCADE, related_name='hits')
+        'QRCode', on_delete=models.CASCADE, related_name='hits', null=True, blank=True)
+    message = models.CharField(max_length=255, blank=True, null=True,
+                               help_text='Extra information about errors or other extra info')
 
     class Meta:
         ordering = ['-hit_date']

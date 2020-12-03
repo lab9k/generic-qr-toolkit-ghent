@@ -102,7 +102,7 @@
             },
             drawLineChart() {
                 const data = this.state.data;
-                const mapped_data = data.map(hit => {
+                const mapped_data = data.filter(el => el.action !== 'error').map(hit => {
                     console.log(hit);
                     return {
                         t: moment.utc(hit.hit_date, "YYYY-MM-DDTHH:mm:ss.SSSSZ").startOf('day').format("YYYY-MM-DD"),
@@ -129,16 +129,41 @@
                         data: {
                             labels: this.state.labels,
                             datasets: [{
-                                label: this.state.elements.deptname,
+                                label: `Successful ${this.state.elements.deptname}hits`,
                                 data: mapped_data,
                                 type: 'line',
                                 pointRadius: 4,
                                 fill: false,
                                 lineTension: 0,
                                 borderWidth: 2,
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                            }]
+                                backgroundColor: 'rgba(29,96,24,0.2)',
+                                borderColor: 'rgba(57,186,47,1)',
+                            },
+                                {
+                                    label: `Erroneous ${this.state.elements.deptname}hits`,
+                                    data: data.filter(el => el.action === 'error').map(hit => {
+                                        console.log(hit);
+                                        return {
+                                            t: moment.utc(hit.hit_date, "YYYY-MM-DDTHH:mm:ss.SSSSZ").startOf('day').format("YYYY-MM-DD"),
+                                            y: Math.random() * 10
+                                        }
+                                    }).reduce((acc, curr) => {
+                                        let found = acc.find(el => el.t === curr.t)
+                                        if (!found) {
+                                            acc.push({...curr, y: 1});
+                                        } else {
+                                            found.y += 1;
+                                        }
+                                        return acc
+                                    }, []),
+                                    type: 'line',
+                                    pointRadius: 4,
+                                    fill: false,
+                                    lineTension: 0,
+                                    borderWidth: 2,
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                }]
                         },
                         options: {
                             scales: {
@@ -194,7 +219,7 @@
 
             const params = new URLSearchParams(window.location.search)
             const deptName = params.has('code__department__name') ?
-                params.get('code__department__name') : null
+                `${params.get('code__department__name')} ` : ''
 
             if (deptName) {
                 title.innerText = `Overview: ${deptName}`
@@ -202,7 +227,7 @@
                 title.innerText = 'Overview: all departments'
             }
 
-            App.init(deptName || 'hits');
+            App.init(deptName);
 
         }
     </script>

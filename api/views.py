@@ -83,7 +83,10 @@ class QRCodeDetails(APIView):
     def get_object(uuid):
         try:
             return QRCode.objects.get(uuid=uuid)
-        except QRCode.DoesNotExist or ValidationError:
+        except (QRCode.DoesNotExist or ValidationError) as error:
+            hit = ApiHit(code=None, action=ApiHit.ACTION_CHOICES.ERROR,
+                         message=f'code with id "{uuid}" does not exist.')
+            hit.save()
             raise Http404
 
     def get(self, request, uuid, format=None):

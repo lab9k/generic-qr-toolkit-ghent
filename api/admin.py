@@ -13,10 +13,13 @@ from api.models import ApiHit, Department, LinkUrl, QRCode
 
 @admin.register(ApiHit)
 class ApiHitAdmin(admin.ModelAdmin):
-    readonly_fields = ('hit_date', 'action', 'code')
-    list_display = ('code', 'hit_date', 'action')
+    readonly_fields = ('hit_date', 'action', 'code', 'message')
+    list_display = ('code', 'hit_date', 'action', 'message')
     change_list_template = 'api/apihit/change_list.html'
     list_filter = ('code__department__name',)
+
+    def get_list_display(self, request):
+        return super(ApiHitAdmin, self).get_list_display(request)
 
 
 class LinkUrlInline(admin.StackedInline):
