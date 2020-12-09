@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.conf import include
 from api import views
@@ -11,6 +12,7 @@ router = routers.DefaultRouter()
 router.register(r'qrcodes', viewsets.CodeViewSet)
 router.register(r'apihits', viewsets.ApiHitViewSet)
 router.register(r'departments', viewsets.DepartmentViewSet)
+router.register(r'urls', viewsets.LinkUrlViewSet)
 
 urlpatterns = [
     path('code/', views.CodeList.as_view()),
@@ -21,6 +23,6 @@ urlpatterns = [
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns, allowed=['json', 'html'])
-urlpatterns += [path('api/rest/', include(router.urls)),
-                path('api/graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
+urlpatterns += [path('api/', include(router.urls)),
+                path('api/graphql/', login_required(GraphQLView.as_view(graphiql=True, schema=schema))),
                 path('api-auth/', include('rest_framework.urls', namespace='rest_framework')), ]

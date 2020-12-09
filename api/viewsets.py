@@ -1,7 +1,9 @@
-from api.serializers import QRCodeSerializer, ApiHitSerializer, DepartmentSerializer
-from api.models import ApiHit, QRCode, Department
+from rest_framework.viewsets import GenericViewSet
+
+from api.serializers import QRCodeSerializer, ApiHitSerializer, DepartmentSerializer, LinkUrlSerializer
+from api.models import ApiHit, QRCode, Department, LinkUrl
 from api.permissions import IsFromDepartmentOrReadOnly
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework import permissions
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFilter, DateTimeFilter, NumberFilter
 
@@ -37,3 +39,16 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name',)
+
+
+class LinkUrlViewSet(mixins.CreateModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin,
+                     GenericViewSet):
+    serializer_class = LinkUrlSerializer
+    queryset = LinkUrl.objects.all()
+    permission_classes = [permissions.IsAuthenticated, ]
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('code',)

@@ -5,7 +5,7 @@ from api.models import Department, LinkUrl, QRCode, ApiHit
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ('id', 'name')
+        fields = '__all__'
 
 
 class LinkUrlSerializer(serializers.ModelSerializer):
@@ -15,6 +15,9 @@ class LinkUrlSerializer(serializers.ModelSerializer):
 
 
 class QRCodeSerializer(serializers.ModelSerializer):
+    urls = LinkUrlSerializer(many=True, read_only=True)
+    department = DepartmentSerializer(read_only=True)
+
     class Meta:
         model = QRCode
         fields = '__all__'
