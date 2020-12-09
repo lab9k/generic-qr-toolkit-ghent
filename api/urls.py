@@ -7,6 +7,7 @@ from api.schema import schema
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework import routers
 from graphene_django.views import GraphQLView
+from rest_framework.schemas import get_schema_view
 
 router = routers.DefaultRouter()
 router.register(r'qrcodes', viewsets.CodeViewSet)
@@ -25,4 +26,11 @@ urlpatterns = [
 urlpatterns = format_suffix_patterns(urlpatterns, allowed=['json', 'html'])
 urlpatterns += [path('api/', include(router.urls)),
                 path('api/graphql/', login_required(GraphQLView.as_view(graphiql=True, schema=schema))),
-                path('api-auth/', include('rest_framework.urls', namespace='rest_framework')), ]
+                path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+                path('openapi/', get_schema_view(
+                    title="Your Project",
+                    description="API for all things …",
+                    version="1.0.0",
+                    patterns=router.urls
+                ), name='openapi-schema')
+                ]
