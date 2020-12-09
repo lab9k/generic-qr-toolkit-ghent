@@ -28,8 +28,8 @@ urlpatterns += [path('api/', include(router.urls)),
                 # path('api/graphql/', login_required(GraphQLView.as_view(graphiql=True, schema=schema))),
                 path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
                 path('openapi/', get_schema_view(
-                    title="Your Project",
-                    description="API for all things …",
+                    title="Qr code Toolkit API",
+                    description="Stad Gent qr code toolkit",
                     version="1.0.0",
                     patterns=router.urls
                 ), name='openapi-schema')
