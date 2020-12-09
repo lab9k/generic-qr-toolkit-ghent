@@ -13,7 +13,7 @@ class CodeViewSet(viewsets.ModelViewSet):
     queryset = QRCode.objects.order_by('-last_updated')
     permission_classes = [permissions.IsAuthenticated, IsFromDepartmentOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('mode', 'title', 'created', 'last_updated', 'uuid')
+    filterset_fields = ('mode', 'title', 'created', 'last_updated', 'uuid', 'department__name')
 
 
 class ApiHitFilterSet(FilterSet):
