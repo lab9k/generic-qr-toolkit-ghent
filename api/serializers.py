@@ -6,6 +6,9 @@ class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = '__all__'
+        extra_kwargs = {
+            'name': {'validators': []},
+        }
 
 
 class LinkUrlSerializer(serializers.ModelSerializer):
@@ -16,7 +19,13 @@ class LinkUrlSerializer(serializers.ModelSerializer):
 
 class QRCodeSerializer(serializers.ModelSerializer):
     urls = LinkUrlSerializer(many=True, read_only=True)
-    department = DepartmentSerializer(read_only=True)
+    department = DepartmentSerializer()
+
+    def create(self, validated_data):
+        validated_dept = validated_data.pop('department')
+        dept, created = Department.objects.get_or_create(name=validated_dept['name'])
+        code = QRCode.objects.create(**validated_data, department=dept)
+        return code
 
     class Meta:
         model = QRCode
