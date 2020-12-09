@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.conf import include
+from django.views.generic import TemplateView
+
 from api import views
 from api import viewsets
 from api.schema import schema
@@ -32,6 +34,10 @@ urlpatterns += [path('api/', include(router.urls)),
                     description="Stad Gent qr code toolkit",
                     version="1.0.0",
                     patterns=router.urls,
-                    url='https://qr.stad.gent/api/'
-                ), name='openapi-schema')
+                    url='/api/'
+                ), name='openapi-schema'),
+                path('swagger-ui/', TemplateView.as_view(
+                    template_name='api/swagger-ui.html',
+                    extra_context={'schema_url': 'openapi-schema'}
+                ), name='swagger-ui'),
                 ]
