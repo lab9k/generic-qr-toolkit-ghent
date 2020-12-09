@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
     'rest_framework',
+    'graphene_django',
     'django_filters',
     'reversion',
     'accounts',
@@ -121,6 +122,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Graphene
+
+GRAPHENE = {
+    'SCHEMA': 'api.schema.schema'  # Where your Graphene schema lives
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/

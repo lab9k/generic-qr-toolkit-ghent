@@ -2,8 +2,10 @@ from django.urls import path
 from django.urls.conf import include
 from api import views
 from api import viewsets
+from api.schema import schema
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework import routers
+from graphene_django.views import GraphQLView
 
 router = routers.DefaultRouter()
 router.register(r'qrcodes', viewsets.CodeViewSet)
@@ -19,5 +21,6 @@ urlpatterns = [
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns, allowed=['json', 'html'])
-urlpatterns += [path('api/', include(router.urls)),
+urlpatterns += [path('api/rest/', include(router.urls)),
+                path('api/graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
                 path('api-auth/', include('rest_framework.urls', namespace='rest_framework')), ]

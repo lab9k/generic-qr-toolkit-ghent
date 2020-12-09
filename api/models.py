@@ -64,7 +64,7 @@ class QRCode(models.Model):
 
     title = models.CharField(blank=True, default='', max_length=100)
     department = models.ForeignKey(
-        to=Department, on_delete=models.CASCADE)
+        to=Department, on_delete=models.CASCADE, related_name='qrcodes')
 
     uuid = models.UUIDField(
         default=uuid.uuid4,
