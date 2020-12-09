@@ -25,7 +25,7 @@ urlpatterns = [
 
 urlpatterns = format_suffix_patterns(urlpatterns, allowed=['json', 'html'])
 urlpatterns += [path('api/', include(router.urls)),
-                path('api/graphql/', login_required(GraphQLView.as_view(graphiql=True, schema=schema))),
+                # path('api/graphql/', login_required(GraphQLView.as_view(graphiql=True, schema=schema))),
                 path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
                 path('openapi/', get_schema_view(
                     title="Your Project",
