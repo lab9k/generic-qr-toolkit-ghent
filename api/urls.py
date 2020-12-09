@@ -31,6 +31,7 @@ urlpatterns += [path('api/', include(router.urls)),
                     title="Qr code Toolkit API",
                     description="Stad Gent qr code toolkit",
                     version="1.0.0",
-                    patterns=router.urls
+                    patterns=router.urls,
+                    url='https://qr.stad.gent/api/'
                 ), name='openapi-schema')
                 ]
