@@ -3,33 +3,28 @@ from django.urls import reverse
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.exceptions import NotAuthenticated
-from api.models import ApiHit, QRCode
-from api.serializers import QRCodeSerializer
+from .models import ApiHit, QRCode
+from .serializers import QRCodeSerializer
 from django.http import Http404, HttpResponse
 from rest_framework.views import APIView
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 import requests
 import io
 import zipfile
-from uuid import uuid4
+import uuid
+from django.db.models import Q
 
 
-class CodeList(ListView):
-    template_name = 'api/qrcode/code_list.html'
-    queryset = QRCode.objects.all()
-    context_object_name = 'codes'
-
-
-def download_code(request, uuid):
+def download_code(request, uid):
     if request.user.is_authenticated:
-        code, created = QRCode.objects.get_or_create(uuid=uuid, defaults={'department': request.user.department})
+        code, created = QRCode.objects.get_or_create(uuid=uid, defaults={'department': request.user.department})
         if created:
             code.title = request.GET.get('title', 'Auto Generated Code')
             code.save()
     else:
-        code = QRCode.objects.get(uuid=uuid)
+        code = QRCode.objects.get(uuid=uid)
     code_url = request.build_absolute_uri(reverse("qrcode-detail", kwargs=dict(uuid=code.uuid)))
     image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
     image_resp = requests.get(image_url).text
@@ -46,13 +41,13 @@ def generate(request, amount):
     s = io.BytesIO()
 
     zf = zipfile.ZipFile(s, mode='w', compression=zipfile.ZIP_DEFLATED)
-    uuids = [uuid4() for x in range(amount)]
+    uuids = [uuid.uuid4() for x in range(amount)]
 
-    for uuid in uuids:
-        code_url = request.build_absolute_uri(reverse('qrcode-detail', kwargs=dict(uuid=uuid)))
+    for uid in uuids:
+        code_url = request.build_absolute_uri(reverse('qrcode-detail', kwargs=dict(uuid=uid)))
         image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
         res = requests.get(image_url)
-        zf.writestr(f'Auto Generated Code-{uuid}.svg', res.content)
+        zf.writestr(f'Auto Generated Code-{uid}.svg', res.content)
 
     zf.close()
 
@@ -68,9 +63,9 @@ class CodeView(DetailView):
     context_object_name = 'code'
 
     def get_object(self, queryset=None):
-        uuid = self.kwargs.get(self.pk_url_kwarg)
+        uid = self.kwargs.get(self.pk_url_kwarg)
         try:
-            return self.queryset.get(uuid=uuid)
+            return self.queryset.get(uuid=uid)
         except QRCode.DoesNotExist or ValidationError:
             raise Http404
 
@@ -80,25 +75,31 @@ class QRCodeDetails(APIView):
     permission_classes = []
 
     @staticmethod
-    def get_object(uuid):
+    def get_object(short_uuid):
         try:
-            return QRCode.objects.get(uuid=uuid)
+            try:
+                short_uuid = uuid.UUID(short_uuid)
+                # short_uuid is a valid uuid object
+                return QRCode.objects.get(uuid=short_uuid)
+            except ValueError:
+                # short_uuid is not a valid uuid object
+                return QRCode.objects.get(short_uuid=short_uuid)
+
         except (QRCode.DoesNotExist or ValidationError) as error:
             hit = ApiHit(code=None, action=ApiHit.ACTION_CHOICES.ERROR,
-                         message=f'code with id "{uuid}" does not exist.')
+                         message=f'code with "{str(short_uuid)}" does not exist.')
             hit.save()
             raise Http404
 
-    def get(self, request, uuid, format=None):
-        qrcode = self.get_object(uuid)
+    def get(self, request, short_uuid=None, format=None):
+        qrcode = self.get_object(short_uuid=short_uuid)
 
         if request.accepted_renderer.format == 'json' or format == 'json':
             if request.user.is_authenticated:
                 hit = ApiHit(
                     code=qrcode, action=ApiHit.ACTION_CHOICES.JSON)
                 hit.save()
-                serializer = QRCodeSerializer(qrcode)
-                return Response(serializer.data)
+                return redirect(to=reverse('api-code-detail', kwargs={'pk': qrcode.id}), permanent=False)
             else:
                 raise NotAuthenticated
 
@@ -127,5 +128,4 @@ class QRCodeDetails(APIView):
         hit = ApiHit(
             code=qrcode, action=ApiHit.ACTION_CHOICES.JSON)
         hit.save()
-        serializer = QRCodeSerializer(qrcode)
-        return Response(serializer.data)
+        return redirect(to=reverse('api-code-detail', kwargs={'pk': qrcode.id}), permanent=False)

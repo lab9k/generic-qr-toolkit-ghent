@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 import uuid
+from django.template.defaultfilters import slugify
 
 
 class ApiHit(models.Model):
@@ -62,13 +63,18 @@ class QRCode(models.Model):
         REDIRECT = 'redirect', _('Redirect Mode')
         INFO_PAGE = 'info_page', _('Information Page Mode')
 
-    title = models.CharField(blank=True, default='', max_length=100)
+    title = models.CharField(blank=True, default='', max_length=100, unique=True)
     department = models.ForeignKey(
         to=Department, on_delete=models.CASCADE, related_name='qrcodes')
 
     uuid = models.UUIDField(
         default=uuid.uuid4,
-        editable=True
+        editable=False
+    )
+    short_uuid = models.SlugField(
+        unique=True,
+        blank=True,
+        null=True,
     )
 
     basic_info = models.TextField(blank=True, default='')
@@ -82,6 +88,11 @@ class QRCode(models.Model):
 
     extra_data = models.JSONField(default=dict, blank=True,
                                   help_text='Use this to add extra data to the rest-api response for this code.<br/>')
+
+    def save(self, *args, **kwargs):
+        if not self.short_uuid:
+            self.short_uuid = slugify(self.title)
+        return super(QRCode, self).save(*args, **kwargs)
 
     def __str__(self) -> str:
         if self.department is not None:

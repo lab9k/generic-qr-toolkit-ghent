@@ -36,6 +36,7 @@ class QRCodeAdmin(VersionAdmin):
     inlines = [LinkUrlInline]
     change_list_template = 'api/qrcode/change_list.html'
     actions = ['download_codes', ]
+    readonly_fields = ('uuid',)
 
     def get_queryset(self, request):
         qs = super(QRCodeAdmin, self).get_queryset(request)
@@ -47,10 +48,10 @@ class QRCodeAdmin(VersionAdmin):
         return super(QRCodeAdmin, self).get_model_perms(request)
 
     def get_code_image_url(self, obj):
-        return mark_safe(f'<span><a href="/code/{obj.uuid}">/code/{obj.uuid}</a></span>')
+        return mark_safe(f'<span><a href="/code/{obj.short_uuid}">/code/{obj.short_uuid}</a></span>')
 
     def get_code_url(self, obj):
-        return mark_safe(f'<span><a href="/{obj.uuid}">/{obj.uuid}</a></span>')
+        return mark_safe(f'<span><a href="/{obj.short_uuid}">/{obj.short_uuid}</a></span>')
 
     get_code_image_url.short_description = 'Code image'
     get_code_url.short_description = 'Code url'
