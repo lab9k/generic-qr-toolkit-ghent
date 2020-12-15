@@ -17,15 +17,29 @@ import uuid
 from django.db.models import Q
 
 
-def download_code(request, uid):
+def download_code(request, short_uuid):
     if request.user.is_authenticated:
-        code, created = QRCode.objects.get_or_create(uuid=uid, defaults={'department': request.user.department})
+        try:
+            short_uuid = uuid.UUID(short_uuid)
+            # short_uuid is a valid uuid object
+            code, created = QRCode.objects.get_or_create(uuid=short_uuid, defaults={'department': request.user.department})
+        except ValueError:
+            # short_uuid is not a valid uuid object
+            code, created = QRCode.objects.get_or_create(short_uuid=short_uuid,
+                                                         defaults={'department': request.user.department})
         if created:
             code.title = request.GET.get('title', 'Auto Generated Code')
             code.save()
     else:
-        code = QRCode.objects.get(uuid=uid)
-    code_url = request.build_absolute_uri(reverse("qrcode-detail", kwargs=dict(uuid=code.uuid)))
+        try:
+            short_uuid = uuid.UUID(short_uuid)
+            # short_uuid is a valid uuid object
+            code = QRCode.objects.get(uuid=short_uuid)
+        except ValueError:
+            # short_uuid is not a valid uuid object
+            code = QRCode.objects.get(short_uuid=short_uuid)
+
+    code_url = request.build_absolute_uri(reverse("qrcode-detail", kwargs=dict(short_uuid=code.short_uuid)))
     image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
     image_resp = requests.get(image_url).text
 
@@ -41,10 +55,10 @@ def generate(request, amount):
     s = io.BytesIO()
 
     zf = zipfile.ZipFile(s, mode='w', compression=zipfile.ZIP_DEFLATED)
-    uuids = [uuid.uuid4() for x in range(amount)]
+    uuids = [uuid.uuid4() for _ in range(amount)]
 
     for uid in uuids:
-        code_url = request.build_absolute_uri(reverse('qrcode-detail', kwargs=dict(uuid=uid)))
+        code_url = request.build_absolute_uri(reverse('qrcode-detail', kwargs=dict(short_uuid=uid)))
         image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
         res = requests.get(image_url)
         zf.writestr(f'Auto Generated Code-{uid}.svg', res.content)
@@ -58,14 +72,20 @@ def generate(request, amount):
 
 class CodeView(DetailView):
     template_name = 'api/qrcode/code.html'
-    pk_url_kwarg = 'uuid'
+    pk_url_kwarg = 'short_uuid'
     queryset = QRCode.objects.all()
     context_object_name = 'code'
 
     def get_object(self, queryset=None):
         uid = self.kwargs.get(self.pk_url_kwarg)
         try:
-            return self.queryset.get(uuid=uid)
+            try:
+                short_uuid = uuid.UUID(uid)
+                # short_uuid is a valid uuid object
+                return self.queryset.get(uuid=short_uuid)
+            except ValueError:
+                # short_uuid is not a valid uuid object
+                return self.queryset.get(short_uuid=uid)
         except QRCode.DoesNotExist or ValidationError:
             raise Http404
 

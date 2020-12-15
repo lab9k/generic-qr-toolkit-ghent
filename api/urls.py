@@ -24,8 +24,8 @@ suffixed_urlpatterns = [
 suffixed_urlpatterns = format_suffix_patterns(suffixed_urlpatterns, allowed=['html', 'json'])
 
 urlpatterns = [
-    path('code/<uuid>/', views.CodeView.as_view(), name='code-detail'),
-    path('code/<uuid>/dl', views.download_code, name='code-dl'),
+    path('code/<slug:short_uuid>/', views.CodeView.as_view(), name='code-detail'),
+    path('code/<slug:short_uuid>/dl', views.download_code, name='code-dl'),
     path('code/generate/<int:amount>', views.generate, name='code-generate'),
 ]
 
