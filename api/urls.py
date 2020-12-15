@@ -19,7 +19,7 @@ router.register(r'urls', viewsets.LinkUrlViewSet, basename='api-url')
 
 suffixed_urlpatterns = [
     # path('<uuid:uuid>/', views.QRCodeDetails.as_view(), name='qrcode-detail'),
-    path('<slug:short_uuid>', views.QRCodeDetails.as_view(), name='qrcode-detail')
+    path('<slug:short_uuid>/', views.QRCodeDetails.as_view(), name='qrcode-detail')
 ]
 suffixed_urlpatterns = format_suffix_patterns(suffixed_urlpatterns, allowed=['html', 'json'])
 
