@@ -24,14 +24,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='qrcode',
             name='short_uuid',
-            field=models.SlugField(blank=True, null=True, unique=True),
+            field=models.SlugField(blank=True, null=True, unique=True, max_length=150),
         ),
-        migrations.RunPython(update_qrcodes),
         migrations.AlterField(
             model_name='qrcode',
             name='title',
             field=models.CharField(blank=True, default='', max_length=100, unique=True),
         ),
+        migrations.RunPython(update_qrcodes),
         migrations.AlterField(
             model_name='qrcode',
             name='uuid',
