@@ -75,6 +75,7 @@ class QRCode(models.Model):
         unique=True,
         blank=True,
         null=True,
+        max_length=150
     )
 
     basic_info = models.TextField(blank=True, default='')
