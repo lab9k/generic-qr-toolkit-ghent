@@ -49,25 +49,25 @@ def download_code(request, short_uuid):
     return response
 
 
-@login_required
-def generate(request, amount):
-    zip_filename = 'generated_codes.zip'
-    s = io.BytesIO()
-
-    zf = zipfile.ZipFile(s, mode='w', compression=zipfile.ZIP_DEFLATED)
-    uuids = [uuid.uuid4() for _ in range(amount)]
-
-    for uid in uuids:
-        code_url = request.build_absolute_uri(reverse('qrcode-detail', kwargs=dict(short_uuid=uid)))
-        image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
-        res = requests.get(image_url)
-        zf.writestr(f'Auto Generated Code-{uid}.svg', res.content)
-
-    zf.close()
-
-    resp = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
-    resp['Content-Disposition'] = f'attachment; filename={zip_filename}'
-    return resp
+# @login_required
+# def generate(request, amount):
+#     zip_filename = 'generated_codes.zip'
+#     s = io.BytesIO()
+#
+#     zf = zipfile.ZipFile(s, mode='w', compression=zipfile.ZIP_DEFLATED)
+#     uuids = [uuid.uuid4() for _ in range(amount)]
+#
+#     for uid in uuids:
+#         code_url = request.build_absolute_uri(reverse('qrcode-detail', kwargs=dict(short_uuid=uid)))
+#         image_url = f'http://qrcodeservice.herokuapp.com/?query={code_url}'
+#         res = requests.get(image_url)
+#         zf.writestr(f'Auto Generated Code-{uid}.svg', res.content)
+#
+#     zf.close()
+#
+#     resp = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
+#     resp['Content-Disposition'] = f'attachment; filename={zip_filename}'
+#     return resp
 
 
 class CodeView(DetailView):

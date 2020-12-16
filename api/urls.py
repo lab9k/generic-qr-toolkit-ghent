@@ -20,7 +20,7 @@ router.register(r'urls', viewsets.LinkUrlViewSet, basename='api-url')
 urlpatterns = [
     path('code/<slug:short_uuid>/', views.CodeView.as_view(), name='code-detail'),
     path('code/<slug:short_uuid>/dl', views.download_code, name='code-dl'),
-    path('code/generate/<int:amount>', views.generate, name='code-generate'),
+    # path('code/generate/<int:amount>', views.generate, name='code-generate'),
 ]
 
 urlpatterns += [path('api/', include(router.urls)),
