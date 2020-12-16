@@ -17,19 +17,11 @@ router.register(r'apihits', viewsets.ApiHitViewSet, basename='api-apihit')
 router.register(r'departments', viewsets.DepartmentViewSet, basename='api-department')
 router.register(r'urls', viewsets.LinkUrlViewSet, basename='api-url')
 
-suffixed_urlpatterns = [
-    # path('<uuid:uuid>/', views.QRCodeDetails.as_view(), name='qrcode-detail'),
-    path('<slug:short_uuid>/', views.QRCodeDetails.as_view(), name='qrcode-detail')
-]
-suffixed_urlpatterns = format_suffix_patterns(suffixed_urlpatterns, allowed=['html', 'json'])
-
 urlpatterns = [
     path('code/<slug:short_uuid>/', views.CodeView.as_view(), name='code-detail'),
     path('code/<slug:short_uuid>/dl', views.download_code, name='code-dl'),
     path('code/generate/<int:amount>', views.generate, name='code-generate'),
 ]
-
-urlpatterns += suffixed_urlpatterns
 
 urlpatterns += [path('api/', include(router.urls)),
                 # path('api/graphql/', login_required(GraphQLView.as_view(graphiql=True, schema=schema))),
@@ -41,8 +33,15 @@ urlpatterns += [path('api/', include(router.urls)),
                     patterns=router.urls,
                     url='/api/'
                 ), name='openapi-schema'),
-                path('swagger-ui/', TemplateView.as_view(
+                path('swui/', TemplateView.as_view(
                     template_name='api/swagger-ui.html',
                     extra_context={'schema_url': 'openapi-schema'}
                 ), name='swagger-ui'),
                 ]
+
+suffixed_urlpatterns = [
+    path('<slug:short_uuid>/', views.QRCodeDetails.as_view(), name='qrcode-detail')
+]
+suffixed_urlpatterns = format_suffix_patterns(suffixed_urlpatterns, allowed=['html', 'json'])
+
+urlpatterns += suffixed_urlpatterns
