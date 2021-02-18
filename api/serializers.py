@@ -34,6 +34,8 @@ class QRCodeSerializer(serializers.ModelSerializer):
 
 
 class ApiHitSerializer(serializers.ModelSerializer):
+    code = QRCodeSerializer()
+
     class Meta:
         model = ApiHit
         fields = '__all__'

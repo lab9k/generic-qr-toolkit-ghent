@@ -21,6 +21,7 @@ class ApiHitFilterSet(FilterSet):
     dept_id = NumberFilter(field_name='code__department__id', lookup_expr='exact', label='Department id')
     action = CharFilter(field_name='action', lookup_expr='icontains')
     hit_date = DateTimeFilter(field_name='hit_date')
+    code_id = NumberFilter(field_name='code__id', lookup_expr='exact', label='Code id')
 
 
 class ApiHitViewSet(viewsets.ReadOnlyModelViewSet):
