@@ -1,1 +1,42 @@
-
+{
+  "name": "Generic Qr toolkit",
+  "description": "This app can create qr codes, which can be changed after they've been printed.",
+  "keywords": [
+    "python",
+    "qrcode",
+    "qr",
+    "Django"
+  ],
+  "website": "https://qr.stad.gent/",
+  "repository": "https://github.com/lab9k/generic-qr-toolkit-ghent",
+  "success_url": "/admin",
+  "scripts": {
+    "postdeploy": "python manage.py migrate"
+  },
+  "env": {
+    "SECRET_KEY": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret"
+    },
+    "DJANGO_SETTINGS_MODULE": {
+      "description": "The number of processes to run.",
+      "value": "QRcodeAPI.settings.production"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
