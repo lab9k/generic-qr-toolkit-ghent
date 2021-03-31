@@ -1,6 +1,6 @@
 # QRCode API
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/heroku/node-js-getting-started)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lab9k/generic-qr-toolkit-ghent)
 
 
 ```http request
