@@ -1,6 +1,6 @@
 # QRCode API
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lab9k/generic-qr-toolkit-ghent)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lab9k/generic-qr-toolkit-ghent&env[DJANGO_SETTINGS_MODULE]=QRcodeAPI.settings.production&env[SECRET_KEY]=supersecretkey)
 
 
 ```http request
