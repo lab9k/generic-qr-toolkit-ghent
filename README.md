@@ -1,7 +1,14 @@
 # QRCode API
 
+### Installing via this button
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lab9k/generic-qr-toolkit-ghent&env[DJANGO_SETTINGS_MODULE]=QRcodeAPI.settings.production)
 
+When the project is set up on heroku, you must create a super user. This can be done by pressing the "Run console" button at the top-right. Then typing:
+```bash
+python manage.py createsuperuser
+```
+This will take you trough some steps of creating the user (info can be changed later on).
 
 ```http request
 GET https://api/qrcodes/
